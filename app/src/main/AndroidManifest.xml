@@ -2,9 +2,9 @@
     xmlns:android="http://schemas.android.com/apk/res/android"
           package="com.jwplayer.opensourcedemo">
 
-    <uses-permission android:name="android.permission.INTERNET"></uses-permission>
-    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE"></uses-permission>
-
+    <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE"/>
 
     <application
         android:name="com.jwplayer.opensourcedemo.MyApplication"
@@ -13,6 +13,15 @@
         android:label="@string/app_name"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
+        <provider
+            android:name="android.support.v4.content.FileProvider"
+            android:authorities="com.mydomain.fileprovider"
+            android:exported="false"
+            android:grantUriPermissions="true">
+            <meta-data
+                android:name="android.support.FILE_PROVIDER_PATHS"
+                android:resource="@xml/file_provider_paths" />
+        </provider>
         <activity
             android:name=".JWMainActivity"
             android:configChanges="keyboard|keyboardHidden|orientation|screenSize"
@@ -23,16 +32,10 @@
             </intent-filter>
         </activity>
 
-        <activity
-            android:name=".JWPlayerViewExample"
-            android:configChanges="keyboard|keyboardHidden|orientation|screenSize"
-            android:label="@string/app_name">
-        </activity>
-
         <!--TODO Set your license key-->
         <meta-data
             android:name="JW_LICENSE_KEY"
-            android:value="" />
+            android:value="qngSiJ14kqJ2G+BW3lu/OmzqSVs2xZOF3GCH2z42tKjBElMJ" />
     </application>
 
 </manifest>
