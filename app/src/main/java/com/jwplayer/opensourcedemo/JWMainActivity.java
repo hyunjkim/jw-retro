@@ -114,6 +114,7 @@ public class JWMainActivity extends AppCompatActivity {
             public void onResponse(Call<JWPojo> call, Response<JWPojo> response) {
                 JWPojo mPojo = response.body();
 
+                Log.i(TAG, "SUCCESS CALL URL:" + call.request().url());
                 Log.i(TAG, "SUCCESS MESSAGE:" + response.message());
 
                 if (response.isSuccessful()) uploadVideo(mPojo);
@@ -135,7 +136,6 @@ public class JWMainActivity extends AppCompatActivity {
      *@Header("Content-Type") String contentType,
      @Header("Authorization") String authorization,
      @Part("file") RequestBody file,
-     @Path("address") String address,
      @Path("path") String path,
      @Query("api_format") String format,
      @Query("key") String video_key,
@@ -144,15 +144,17 @@ public class JWMainActivity extends AppCompatActivity {
     private void uploadVideo(JWPojo upload){
         String key = upload.getMedia().getKey();
         String token = upload.getLink().getQuery().getToken();
-        String address = upload.getLink().getAddress();
+        String path = upload.getLink().getPath();
         RequestBody file = getFile();
 
         retrofit = JWRetrofitInstance.getJWRetrofitInstance("upload");
 
+        jwService = retrofit.create(JWService.class);
+
         callJWAPIService = jwService.uploadVideoToJW(contenttype,
                                                     authentication.getAuthentication(),
                                                     file,
-                                                    address,
+                                                    path,
                                                     apiFormat,
                                                     key,
                                                     token);
@@ -161,6 +163,7 @@ public class JWMainActivity extends AppCompatActivity {
             @Override
             public void onResponse(Call<JWPojo> call, Response<JWPojo> response) {
                 toast(response.isSuccessful());
+                Log.i(TAG, "UPLOAD URL: " + call.request().url());
                 Log.i(TAG, "UPLOAD State: " + response.isSuccessful());
                 Log.i(TAG, "UPLOAD Message: " + response.message());
                 Log.i(TAG, "UPLOAD Raw: " + response.raw());

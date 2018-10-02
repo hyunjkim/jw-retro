@@ -2,6 +2,7 @@ package com.jwplayer.opensourcedemo.client;
 
 import com.jwplayer.opensourcedemo.data.JWPojo;
 
+import okhttp3.MultipartBody;
 import okhttp3.RequestBody;
 import retrofit2.Call;
 import retrofit2.http.GET;
@@ -23,12 +24,13 @@ public interface JWService {
                                  @Query("api_key") String api_key1);
 
     @Multipart
-    @POST("http://{address}/v1/videos/upload")
+    @POST("{path}")
     Call<JWPojo> uploadVideoToJW(@Header("Content-Type") String contentType,
                                  @Header("Authorization") String authorization,
                                  @Part("file") RequestBody file,
-                                 @Path("address") String address,
+                                 @Path("path") String path,
                                  @Query("api_format") String format,
                                  @Query("key") String video_key,
                                  @Query("token") String token);
+
 }
