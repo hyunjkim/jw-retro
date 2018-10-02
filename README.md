@@ -1,14 +1,10 @@
-#JW Player SDK for Android Open Source Demo
-
-
-[![Join the chat at https://gitter.im/jwplayer/jwplayer-sdk-android-demo](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/jwplayer/jwplayer-sdk-android-demo?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
+#JWPlayer Retrofit Calls JW Management API
 
 This application contains an example implementation of the JW Player SDK for Android.
 
 #### Usage instructions:
 
--	Clone the repository into your Android Studio workspace, `git clone git@github.com:jwplayer/jwplayer-sdk-android-demo.git`
--	Open the AndroidManifest.xml file and replace {YOUR_LICENSE_KEY} with your license key
+-	Open the JWService.java file and in the top {ADD_YOUR_API_KEY_AND_SECRET}
 
 The demo application should now build and run. For more information on how to use our SDK refer to our developer guide:
 
