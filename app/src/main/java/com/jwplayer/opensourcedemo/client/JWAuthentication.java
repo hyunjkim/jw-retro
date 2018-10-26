@@ -1,8 +1,5 @@
 package com.jwplayer.opensourcedemo.client;
 
-
-import android.util.Log;
-
 import java.io.UnsupportedEncodingException;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
@@ -11,6 +8,7 @@ import java.security.NoSuchAlgorithmException;
 public class JWAuthentication {
 
 //    TODO: ADD YOUR KEY AND SECRET
+    private static JWAuthentication instance;
     private final String API_KEY = "";
     private final String API_SECRET = "";
     private String api_format = "json",
@@ -19,6 +17,14 @@ public class JWAuthentication {
             authentication,
             api_nonce,
             api_timestamp;
+
+    public static JWAuthentication getInstance() {
+        if(instance == null) {
+            instance = new JWAuthentication();
+            return instance;
+        }
+        return instance;
+    }
 
     /*
     * For more info: https://developer.android.com/reference/java/security/MessageDigest
