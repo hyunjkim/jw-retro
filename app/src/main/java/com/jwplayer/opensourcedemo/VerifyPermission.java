@@ -45,11 +45,11 @@ public class VerifyPermission {
         return writePermission == granted && readPermission == granted;
     }
 
-    public static int[] getResults() {
+    static int[] getResults() {
         return new int[] {writePermission,readPermission} ;
     }
 
-    public static String[] getPermissions() {
+    static String[] getPermissions() {
         return new String[] {"write","read"};
     }
 

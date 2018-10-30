@@ -6,35 +6,30 @@ import android.database.Cursor;
 import android.net.Uri;
 import android.os.Bundle;
 import android.provider.MediaStore;
+import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
-import android.util.Log;
 import android.view.View;
+import android.webkit.MimeTypeMap;
 import android.widget.Button;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 
+import com.jwplayer.opensourcedemo.client.CreateVideo;
 import com.jwplayer.opensourcedemo.client.JWAuthentication;
-import com.jwplayer.opensourcedemo.client.JWRetrofitInstance;
-import com.jwplayer.opensourcedemo.client.JWService;
-import com.jwplayer.opensourcedemo.client.UploadVideo;
-import com.jwplayer.opensourcedemo.data.JWPojo;
 import com.jwplayer.opensourcedemo.network.NetworkAvailability;
 
-import retrofit2.Call;
-import retrofit2.Callback;
-import retrofit2.Response;
-import retrofit2.Retrofit;
+import java.util.Arrays;
+import java.util.List;
+
 
 public class JWMainActivity extends AppCompatActivity{
 
-    private final String TAG = "JWPLAYER-LOGGER";
-    private Retrofit retrofit;
-    private JWService jwService;
-    private Call<JWPojo> callJWAPIService;
-    private TextView tv;
+    private TextView tv, statusTV;
+    private ProgressBar progressBar;
     final int PICK_REQUEST_CODE = 7;
 
-    private String intentpath = "", apiFormat;
+    private String intentpath = "";
 
     private JWAuthentication authentication;
 
@@ -46,6 +41,9 @@ public class JWMainActivity extends AppCompatActivity{
 
         Button button = findViewById(R.id.gallery_btn);
         tv = findViewById(R.id.display_path_txt);
+        statusTV = findViewById(R.id.status_tv);
+        progressBar = findViewById(R.id.progressbar);
+        endProgress();
 
         if(networkAvailable()) {
             button.setOnClickListener(new View.OnClickListener() {
@@ -64,8 +62,11 @@ public class JWMainActivity extends AppCompatActivity{
 
     }
 
+    /*
+     * @NonNull Denotes that a parameter, field or method return value can never be null.
+     */
     @Override
-    public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
         switch (requestCode) {
             case PICK_REQUEST_CODE: {
                 if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
@@ -77,58 +78,64 @@ public class JWMainActivity extends AppCompatActivity{
             }
         }
     }
+
     @Override
     protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent intent) {
-        if (requestCode == PICK_REQUEST_CODE && resultCode!=RESULT_CANCELED && resultCode == RESULT_OK && intent != null && intent.getData() != null) {
-            Uri selectedVideo = intent.getData();
-            String[] filePath = {MediaStore.Images.Media.DATA};
-            Cursor cursor = getContentResolver().query(selectedVideo, filePath,
-                    null, null, null);
-            cursor.moveToFirst();
-            int columnIndex = cursor.getColumnIndex(filePath[0]);
-            intentpath = cursor.getString(columnIndex);
-            cursor.close();
+
+        if (requestCode == PICK_REQUEST_CODE && resultCode!= RESULT_CANCELED && resultCode == RESULT_OK && intent != null) {
+
+            getMediaPath(intent);
+
             tv.setText(intentpath);
-            createVideo();
+
+            String mediaType = MimeTypeMap.getFileExtensionFromUrl(intentpath);
+
+            if(typeValid(mediaType)){
+                CreateVideo.createVideo(this,authentication, intentpath);
+            } else {
+                JWLoggerUtil.log("We do not support this MediaType: "+ mediaType);
+                updateStatus("We do not support this MediaType: "+ mediaType);
+            }
         }
     }
 
-    private void createVideo() {
-        authentication.createSignature("");
+    private void getMediaPath(Intent intent) {
+        String[] filePath = {MediaStore.Images.Media.DATA};
+        Uri selectedVideo = intent.getData();
+        int columnIndex = 0;
 
-        apiFormat = authentication.getApiFormat();
-        String key = authentication.getApikey();
-        String nonce = authentication.getApiNonce();
-        String timestamp = authentication.getApiTimestamp();
-        String token = authentication.getApiSignature();
-
-        retrofit = JWRetrofitInstance.getJWRetrofitInstance("create");
-        jwService = retrofit.create(JWService.class);
-        callJWAPIService = jwService.createVideoToJW(apiFormat, key, nonce, timestamp ,token, key);
-        callJWAPIService.enqueue(new Callback<JWPojo>() {
-
-            @Override
-            public void onResponse(Call<JWPojo> call, Response<JWPojo> response) {
-                JWPojo mPojo = response.body();
-
-                Log.i(TAG, "SUCCESS MESSAGE:" + response.message());
-
-                if (response.isSuccessful()) UploadVideo.uploadVideo(JWMainActivity.this, retrofit, jwService, callJWAPIService, apiFormat, authentication.getAuthentication(), intentpath, mPojo);
-
-                ToastUtil.toast(JWMainActivity.this,true,null);
+        if(intent.getData() != null){
+            Cursor cursor = getContentResolver().query(selectedVideo, filePath,null, null, null);
+            if (cursor != null) {
+                cursor.moveToFirst();
+                columnIndex = cursor.getColumnIndex(filePath[0]);
+                intentpath = cursor.getString(columnIndex);
+                cursor.close();
             }
-
-            @Override
-            public void onFailure(Call<JWPojo> call, Throwable t) {
-                Log.i(TAG, "FAILED to create a video! " + t.getMessage(), t);
-                ToastUtil.toast(JWMainActivity.this,false,"FAILED to create a video!");
-            }
-        });
-
+        } else {
+            JWLoggerUtil.log("No path was found");
+            updateStatus("No path was found");
+        }
     }
+
     private boolean networkAvailable() {
         return NetworkAvailability.checkNetwork(getApplicationContext());
     }
 
+    public void updateStatus(String status){
+        statusTV.setText(status);
+    }
 
+    private boolean typeValid(String videoType){
+        List<String> supportedTypes = Arrays.asList("mp4","webm","flv","aac","mp3","vorbis","m3u8","smil","mpd","rtmp","youtube");
+        return supportedTypes.contains(videoType);
+    }
+
+    public void showProgress() {
+        progressBar.setMax(100);
+        progressBar.setVisibility(ProgressBar.VISIBLE);
+    }
+    public void endProgress(){
+        progressBar.setVisibility(ProgressBar.GONE);
+    }
 }

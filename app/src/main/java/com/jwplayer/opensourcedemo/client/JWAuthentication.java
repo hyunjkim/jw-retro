@@ -4,7 +4,6 @@ import java.io.UnsupportedEncodingException;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 
-
 public class JWAuthentication {
 
 //    TODO: ADD YOUR KEY AND SECRET
@@ -21,7 +20,6 @@ public class JWAuthentication {
     public static JWAuthentication getInstance() {
         if(instance == null) {
             instance = new JWAuthentication();
-            return instance;
         }
         return instance;
     }
@@ -29,10 +27,9 @@ public class JWAuthentication {
     /*
     * For more info: https://developer.android.com/reference/java/security/MessageDigest
     * */
-    public void createSignature(String params){
+    void createSignature(String params){
 
         generateApiSign(params);
-
 
         try {
             MessageDigest md = MessageDigest.getInstance("SHA-1");

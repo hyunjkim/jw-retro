@@ -6,7 +6,6 @@ import android.util.Log;
 import com.jwplayer.opensourcedemo.JWMainActivity;
 import com.jwplayer.opensourcedemo.ToastUtil;
 import com.jwplayer.opensourcedemo.data.JWPojo;
-import com.jwplayer.opensourcedemo.network.NetworkAvailability;
 
 import java.io.File;
 
@@ -31,16 +30,16 @@ public class UploadVideo {
 
     private static final String TAG = "JWPLAYER-LOGGER";
 
-    public static void uploadVideo(final Context context, Retrofit retrofit, JWService jwService, Call<JWPojo> callJWAPIService, String apiFormat, String authentication, String intentpath, JWPojo upload){
+    static void uploadVideo(final JWMainActivity jwMainActivity, String apiFormat, String authentication, String intentpath, JWPojo upload){
         String key = upload.getMedia().getKey();
         String token = upload.getLink().getQuery().getToken();
 
         MultipartBody.Part multiBodyPart = getmultibodypart(intentpath);
 
-        retrofit = JWRetrofitInstance.getJWRetrofitInstance("upload");
+        Retrofit retrofit = JWRetrofitInstance.getJWRetrofitInstance("upload");
 
-        jwService = retrofit.create(JWService.class);
-        callJWAPIService = jwService.uploadVideoToJW(
+        JWService jwService = retrofit.create(JWService.class);
+        Call<JWPojo> callJWAPIService = jwService.uploadVideoToJW(
                 "multipart/form-data",
                 authentication,
                 apiFormat,
@@ -48,20 +47,32 @@ public class UploadVideo {
                 token,
                 multiBodyPart);
 
+        jwMainActivity.showProgress();
+
         callJWAPIService.enqueue(new Callback<JWPojo>() {
+
             @Override
             public void onResponse(Call<JWPojo> call, Response<JWPojo> response) {
-                ToastUtil.toast(context,response.isSuccessful(),null);
-                Log.i(TAG, "UPLOAD URL: " + call.request().url());
+
+                jwMainActivity.endProgress();
+
+                String message = response.raw().toString();
+                ToastUtil.toast(jwMainActivity,response.isSuccessful(),null);
+
                 Log.i(TAG, "UPLOAD State: " + response.isSuccessful());
-                Log.i(TAG, "UPLOAD Message: " + response.message());
-                Log.i(TAG, "UPLOAD Raw: " + response.raw());
+                Log.i(TAG, "UPLOAD Message: " + message);
+
+                jwMainActivity.updateStatus(message);
             }
 
             @Override
             public void onFailure(Call<JWPojo> call, Throwable t) {
+
+                jwMainActivity.endProgress();
+
                 Log.i(TAG, "FAILED TO UPLOAD: " + t.getMessage(), t);
-                ToastUtil.toast(context,false,"FAILED TO UPLOAD ");
+                ToastUtil.toast(jwMainActivity,false,"FAILED TO UPLOAD ");
+                jwMainActivity.updateStatus("FAILED TO UPLOAD");
             }
         });
 

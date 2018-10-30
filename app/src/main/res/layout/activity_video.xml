@@ -12,10 +12,23 @@
         android:layout_height="wrap_content"
         android:hint="DISPLAY PATH">
     </TextView>
+
     <Button
         android:id="@+id/gallery_btn"
         android:text="Go to gallery"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content" />
-
+    <ProgressBar
+        android:padding="50dp"
+        android:id="@+id/progressbar"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content" />
+    <TextView
+        android:id="@+id/status_tv"
+        android:gravity="center"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:paddingTop="30dp"
+        android:hint="Status">
+    </TextView>
 </LinearLayout>
