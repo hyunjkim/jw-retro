@@ -38,7 +38,10 @@ public class CreateVideo{
             @Override
             public void onResponse(Call<JWPojo> call, Response<JWPojo> response) {
 
+                jwMainActivity.endProgress();
+
                 JWPojo mPojo = response.body();
+                String errorMsg = "No information was received (HINT: Did you add your Secret and key?)";
                 String message = response.message();
                 JWLoggerUtil.log("SUCCESS MESSAGE:" + message);
                 jwMainActivity.endProgress();
@@ -46,11 +49,10 @@ public class CreateVideo{
                 if (response.isSuccessful() && mPojo != null) {
                     UploadVideo.uploadVideo(jwMainActivity, apiFormat, authentication.getAuthentication(), intentpath, mPojo);
                     ToastUtil.toast(jwMainActivity,true,null);
-                    jwMainActivity.showProgress();
                     jwMainActivity.updateStatus(message);
                 } else {
-                    ToastUtil.toast(jwMainActivity,false,"No information was received");
-                    jwMainActivity.updateStatus(message);
+                    ToastUtil.toast(jwMainActivity,false,errorMsg);
+                    jwMainActivity.updateStatus(message + errorMsg);
                 }
             }
 
