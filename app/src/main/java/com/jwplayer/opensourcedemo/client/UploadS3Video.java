@@ -1,12 +1,17 @@
 package com.jwplayer.opensourcedemo.client;
 
+import android.os.Build;
 import android.util.Log;
 
 import com.jwplayer.opensourcedemo.JWMainActivity;
-import com.jwplayer.opensourcedemo.util.ToastUtil;
 import com.jwplayer.opensourcedemo.data.JWPojo;
+import com.jwplayer.opensourcedemo.util.JWLoggerUtil;
+import com.jwplayer.opensourcedemo.util.ToastUtil;
 
 import java.io.File;
+import java.io.UnsupportedEncodingException;
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 
 import okhttp3.MediaType;
 import okhttp3.MultipartBody;
@@ -16,7 +21,9 @@ import retrofit2.Callback;
 import retrofit2.Response;
 import retrofit2.Retrofit;
 
-public class UploadVideo {
+
+
+public class UploadS3Video {
     /**
      *@Header("Content-Type") String contentType,
      @Header("Authorization") String authorization,
@@ -29,22 +36,28 @@ public class UploadVideo {
 
     private static final String TAG = "JWPLAYER-LOGGER";
 
-    static void uploadVideo(final JWMainActivity jwMainActivity, String apiFormat, String authentication, String intentpath, JWPojo upload){
-        String key = upload.getMedia().getKey();
-        String token = upload.getLink().getQuery().getToken();
+    static void uploadVideo(final JWMainActivity jwMainActivity,String authentication, String intentpath, JWPojo upload){
+        String videokey = upload.getMedia().getKey();
+        String awskey = upload.getLink().getQuery().getAWSAccessKeyId();
+        String expires = upload.getLink().getQuery().getExpires();
+        String signature = upload.getLink().getQuery().getSignature();
+
         String address = upload.getLink().getAddress();
+
+        JWLoggerUtil.log("signature: " + signature);
 
         MultipartBody.Part multiBodyPart = getmultibodypart(intentpath);
 
         Retrofit retrofit = JWRetrofitInstance.getJWRetrofitInstance(address);
 
         JWService jwService = retrofit.create(JWService.class);
-        Call<JWPojo> callJWAPIService = jwService.uploadVideoToJW(
+        Call<JWPojo> callJWAPIService = jwService.uploadS3VideoToJW(
                 "multipart/form-data",
                 authentication,
-                apiFormat,
-                key,
-                token,
+                videokey,
+                awskey,
+                expires,
+                signature,
                 multiBodyPart);
 
         jwMainActivity.showProgress();
@@ -70,6 +83,8 @@ public class UploadVideo {
 
                 jwMainActivity.endProgress();
 
+                Log.i(TAG, "FAILED TO UPLOAD: " + call.request().body());
+                Log.i(TAG, "FAILED TO UPLOAD: " + call.request().url());
                 Log.i(TAG, "FAILED TO UPLOAD: " + t.getMessage(), t);
                 ToastUtil.toast(jwMainActivity,false,"FAILED TO UPLOAD ");
                 jwMainActivity.updateStatus("FAILED TO UPLOAD");

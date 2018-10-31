@@ -3,29 +3,22 @@ package com.jwplayer.opensourcedemo.client;
 import retrofit2.Retrofit;
 import retrofit2.converter.gson.GsonConverterFactory;
 
-public class JWRetrofitInstance {
+class JWRetrofitInstance {
 
-    private static final String BASE_URL_UPLOAD = "http://upload.jwplatform.com";
-    private static final String BASE_URL_CREATE = "https://api.jwplatform.com";
+//    private static final String BASE_URL_UPLOAD = "http://upload.jwplatform.com";
+//    private static final String BASE_URL_CREATE = "https://api.jwplatform.com";
+    private static final String BASE_URL_S3 = "http://";
+    private static final String BASE_PROTOCOL = "https://";
 
-    public static Retrofit getJWRetrofitInstance(String call){
+    static Retrofit getJWRetrofitInstance(String address){
 
         Retrofit retrofit;
-
-        switch(call) {
-            case "create":
-                    retrofit = new Retrofit.Builder()
-                    .baseUrl(BASE_URL_CREATE)
-                    .addConverterFactory(GsonConverterFactory.create())
-                    .build();
-                break;
-            default:
+        address = BASE_URL_S3 + address;
+//        address = BASE_PROTOCOL + address;
                 retrofit = new Retrofit.Builder()
-                        .baseUrl(BASE_URL_UPLOAD)
+                        .baseUrl(address)
                         .addConverterFactory(GsonConverterFactory.create())
                         .build();
-                break;
-        }
         return retrofit;
     }
 

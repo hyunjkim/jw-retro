@@ -12,6 +12,39 @@ public class Query {
     @SerializedName("key")
     @Expose
     private String key;
+    @SerializedName("AWSAccessKeyId")
+    @Expose
+    private String aWSAccessKeyId;
+    @SerializedName("Expires")
+    @Expose
+    private String expires;
+    @SerializedName("Signature")
+    @Expose
+    private String signature;
+
+    public String getAWSAccessKeyId() {
+        return aWSAccessKeyId;
+    }
+
+    public void setAWSAccessKeyId(String aWSAccessKeyId) {
+        this.aWSAccessKeyId = aWSAccessKeyId;
+    }
+
+    public String getExpires() {
+        return expires;
+    }
+
+    public void setExpires(String expires) {
+        this.expires = expires;
+    }
+
+    public String getSignature() {
+        return signature;
+    }
+
+    public void setSignature(String signature) {
+        this.signature = signature;
+    }
 
     public String getToken() {
         return token;

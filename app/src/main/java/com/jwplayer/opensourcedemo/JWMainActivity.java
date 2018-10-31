@@ -12,12 +12,15 @@ import android.support.v7.app.AppCompatActivity;
 import android.view.View;
 import android.webkit.MimeTypeMap;
 import android.widget.Button;
+import android.widget.CheckBox;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import com.jwplayer.opensourcedemo.client.CreateVideo;
 import com.jwplayer.opensourcedemo.client.JWAuthentication;
 import com.jwplayer.opensourcedemo.network.NetworkAvailability;
+import com.jwplayer.opensourcedemo.util.JWLoggerUtil;
+import com.jwplayer.opensourcedemo.util.ToastUtil;
 
 import java.util.Arrays;
 import java.util.List;
@@ -25,12 +28,12 @@ import java.util.List;
 
 public class JWMainActivity extends AppCompatActivity{
 
-    private TextView tv, statusTV;
-    private ProgressBar progressBar;
     final int PICK_REQUEST_CODE = 7;
 
+    private TextView tv, statusTV;
+    private ProgressBar progressBar;
+    private CheckBox s3Checkbox;
     private String intentpath = "";
-
     private JWAuthentication authentication;
 
     @Override
@@ -43,6 +46,8 @@ public class JWMainActivity extends AppCompatActivity{
         tv = findViewById(R.id.display_path_txt);
         statusTV = findViewById(R.id.status_tv);
         progressBar = findViewById(R.id.progressbar);
+        s3Checkbox = findViewById(R.id.s3_checkbox);
+
         endProgress();
 
         if(networkAvailable()) {
@@ -91,7 +96,11 @@ public class JWMainActivity extends AppCompatActivity{
             String mediaType = MimeTypeMap.getFileExtensionFromUrl(intentpath);
 
             if(typeValid(mediaType)){
-                CreateVideo.createVideo(this,authentication, intentpath);
+                if (s3Checkbox.isChecked()) {
+                    CreateVideo.createVideo(this,authentication, intentpath, mediaType,"s3");
+                    s3Checkbox.setChecked(false);
+                }
+                else CreateVideo.createVideo(this,authentication, intentpath, "","");
             } else {
                 JWLoggerUtil.log("We do not support this MediaType: "+ mediaType);
                 updateStatus("We do not support this MediaType: "+ mediaType);
