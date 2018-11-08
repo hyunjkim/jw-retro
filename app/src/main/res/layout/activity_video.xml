@@ -6,12 +6,21 @@
     android:orientation="vertical">
 
     <CheckBox
-        android:id="@+id/s3_checkbox"
+        android:id="@+id/download_url"
         android:gravity="center"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:padding="20dp"
-        android:text="Upload to AWS S3"/>
+        android:text="Download URL"/>
+
+    <EditText
+        android:id="@+id/edit_text"
+        android:gravity="center"
+        android:layout_width="300dp"
+        android:layout_height="wrap_content"
+        android:padding="30dp"
+        android:hint="Paste a Url">
+    </EditText>
 
     <TextView
         android:id="@+id/display_path_txt"
@@ -21,12 +30,23 @@
         android:padding="30dp"
         android:hint="DISPLAY PATH">
     </TextView>
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center"
+        android:orientation="horizontal">
+        <Button
+            android:id="@+id/gallery_btn"
+            android:text="Upload from Gallery"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content" />
 
-    <Button
-        android:id="@+id/gallery_btn"
-        android:text="Go to gallery"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content" />
+        <Button
+            android:id="@+id/upload_btn"
+            android:text="Upload"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content" />
+    </LinearLayout>
     <ProgressBar
         android:padding="50dp"
         android:id="@+id/progressbar"

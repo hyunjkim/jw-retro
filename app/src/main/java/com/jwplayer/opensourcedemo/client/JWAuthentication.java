@@ -31,7 +31,7 @@ public class JWAuthentication {
      * */
     void createSignature(String params) {
 
-        generateApiSign(params);//"&upload_method="+uploadMethod+"&upload_content_type="+mediaType
+        generateApiSign(params);
 
         try {
             MessageDigest md = MessageDigest.getInstance("SHA-1");
@@ -49,6 +49,7 @@ public class JWAuthentication {
         authentication = api_generation + "&api_signature=" + api_signature + "&api_key=" + API_KEY;
     }
 
+    // TODO : Might be used for S3 uploads
     static String encodeSign(String sign) {
 
         try {
@@ -65,7 +66,7 @@ public class JWAuthentication {
         return "";
     }
 
-    private void generateApiSign(String params) {//"&upload_method="+uploadMethod+"&upload_content_type="+mediaType
+    private void generateApiSign(String params) {
 
         api_nonce = String.valueOf(System.currentTimeMillis());
         api_timestamp = String.valueOf(System.currentTimeMillis() / 1000);
@@ -79,7 +80,6 @@ public class JWAuthentication {
             api_generation += params;
             JWLoggerUtil.log(api_generation);
         }
-
 
         // The secret is added and SHA-1 digest is calculated. Secret is added to the end of the SBS:
         api_signature = api_generation + API_SECRET;
@@ -97,7 +97,6 @@ public class JWAuthentication {
             }
             hex.append(Integer.toString((int) aByte & 0xff, 16));
         }
-
         return hex.toString();
     }
 

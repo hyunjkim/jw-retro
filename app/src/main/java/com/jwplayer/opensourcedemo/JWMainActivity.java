@@ -13,6 +13,7 @@ import android.view.View;
 import android.webkit.MimeTypeMap;
 import android.widget.Button;
 import android.widget.CheckBox;
+import android.widget.EditText;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
@@ -31,10 +32,11 @@ public class JWMainActivity extends AppCompatActivity{
     final int PICK_REQUEST_CODE = 7;
 
     private TextView tv, statusTV;
+    private EditText editText;
     private ProgressBar progressBar;
-    private CheckBox s3Checkbox;
+    private CheckBox downloadCheckBox;
     private String intentpath = "";
-    private JWAuthentication authentication;
+    private CreateVideo mCreateVideo;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -42,25 +44,42 @@ public class JWMainActivity extends AppCompatActivity{
         setContentView(R.layout.activity_video);
 
 
-        Button button = findViewById(R.id.gallery_btn);
+        Button gallery = findViewById(R.id.gallery_btn);
+        Button upload = findViewById(R.id.upload_btn);
         tv = findViewById(R.id.display_path_txt);
         statusTV = findViewById(R.id.status_tv);
         progressBar = findViewById(R.id.progressbar);
-        s3Checkbox = findViewById(R.id.s3_checkbox);
+        downloadCheckBox = findViewById(R.id.download_url);
+        editText = findViewById(R.id.edit_text);
 
         endProgress();
 
         if(networkAvailable()) {
-            button.setOnClickListener(new View.OnClickListener() {
+
+            JWAuthentication authentication = JWAuthentication.getInstance();
+            mCreateVideo = new CreateVideo(this, authentication);
+
+            gallery.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    if(VerifyPermission.requestPermission(JWMainActivity.this)){
-                        onRequestPermissionsResult(PICK_REQUEST_CODE,
-                                VerifyPermission.getPermissions(),
-                                VerifyPermission.getResults());
-                    } else {
-                        ToastUtil.toast(JWMainActivity.this, true,"Need Permission!");
-                    }
+                if(VerifyPermission.requestPermission(JWMainActivity.this)){
+                    onRequestPermissionsResult(PICK_REQUEST_CODE,
+                            VerifyPermission.getPermissions(),
+                            VerifyPermission.getResults());
+                } else {
+                    ToastUtil.toast(JWMainActivity.this, true,"Need Permission!");
+                }
+                }
+            });
+            upload.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                if (downloadCheckBox.isChecked()) {
+                    String url = editText.getText().toString();
+                    String params = "&download_url=" + url;
+                    mCreateVideo.createVideo(params, url);
+                    downloadCheckBox.setChecked(false);
+                }
                 }
             });
         } else ToastUtil.toast(this, true,"NETWORK DOWN");
@@ -75,7 +94,6 @@ public class JWMainActivity extends AppCompatActivity{
         switch (requestCode) {
             case PICK_REQUEST_CODE: {
                 if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                    authentication = JWAuthentication.getInstance();
                     Intent openGalleryIntent = new Intent(Intent.ACTION_PICK);
                     openGalleryIntent.setType("video/*");
                     startActivityForResult(openGalleryIntent, PICK_REQUEST_CODE);
@@ -95,13 +113,8 @@ public class JWMainActivity extends AppCompatActivity{
 
             String mediaType = MimeTypeMap.getFileExtensionFromUrl(intentpath);
 
-            if(typeValid(mediaType)){
-                if (s3Checkbox.isChecked()) {
-                    CreateVideo.createVideo(this,authentication, intentpath, mediaType,"s3");
-                    s3Checkbox.setChecked(false);
-                }
-                else CreateVideo.createVideo(this,authentication, intentpath, "","");
-            } else {
+            if(typeValid(mediaType)) mCreateVideo.createVideo(intentpath);
+            else {
                 JWLoggerUtil.log("We do not support this MediaType: "+ mediaType);
                 updateStatus("We do not support this MediaType: "+ mediaType);
             }
@@ -113,7 +126,7 @@ public class JWMainActivity extends AppCompatActivity{
         Uri selectedVideo = intent.getData();
         int columnIndex = 0;
 
-        if(intent.getData() != null){
+        if(selectedVideo != null){
             Cursor cursor = getContentResolver().query(selectedVideo, filePath,null, null, null);
             if (cursor != null) {
                 cursor.moveToFirst();
